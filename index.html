@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Wadi Saqra | Traffic Digital Twin</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#141f31;--panel2:#1c2a3e;--text:#edf3fb;--muted:#a6b6cb;--line:#34445a;--accent:#5aa9ff;--road:#37465a;--grass:#1d4b43}body.light{color-scheme:light;--bg:#eef3f9;--panel:#fff;--panel2:#e8eff8;--text:#1a2c41;--muted:#51647a;--line:#cbd7e4;--road:#64748b;--grass:#a2cbb5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif}header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px max(20px,calc((100vw - 1340px)/2));border-bottom:1px solid var(--line)}h1{font-size:23px;margin:0}h2{font-size:17px;margin:0 0 14px}p{margin:6px 0;color:var(--muted)}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:700}.wrap{max-width:1380px;margin:auto;padding:20px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,1fr);gap:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:19px;min-width:0}.wide{grid-column:1/-1}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:var(--panel2);border-radius:12px;padding:14px}.stat strong{font-size:25px;display:block;margin:6px 0}.stat span,.small{font-size:12px;color:var(--muted)}button,select,input[type=number]{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font:inherit}button{cursor:pointer}button:hover{border-color:var(--accent)}button.primary{background:#1769b5;border-color:#1769b5;color:#fff}button:disabled{opacity:.5;cursor:not-allowed}label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px}.controls{display:flex;gap:8px;flex-wrap:wrap}.field{margin-bottom:16px}.field select{width:100%}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);padding:5px 9px;border-radius:99px;font-size:12px;color:var(--muted)}.dot{height:8px;width:8px;border-radius:50%;background:#8b9aad}.dot.on{background:#34d399}.map{position:relative;background:var(--grass);height:445px;overflow:hidden;border-radius:12px;border:1px solid var(--line)}.road-v{position:absolute;width:31%;height:100%;left:34.5%;top:0;background:var(--road)}.road-h{position:absolute;height:31%;width:100%;top:34.5%;left:0;background:var(--road)}.dash-v{position:absolute;left:50%;height:100%;border-left:3px dashed #e4dca5;opacity:.7}.dash-h{position:absolute;top:50%;width:100%;border-top:3px dashed #e4dca5;opacity:.7}.center{position:absolute;left:34.5%;top:34.5%;width:31%;height:31%;background:var(--road)}.cross{position:absolute;background:repeating-linear-gradient(90deg,#dfe8f1 0 7px,transparent 7px 13px);opacity:.8}.cross.n,.cross.s{width:31%;height:11px;left:34.5%}.cross.n{top:31.5%}.cross.s{bottom:31.5%}.cross.e,.cross.w{width:11px;height:31%;top:34.5%;background:repeating-linear-gradient(0deg,#dfe8f1 0 7px,transparent 7px 13px)}.cross.e{right:31.5%}.cross.w{left:31.5%}.approach{position:absolute;display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;background:rgba(9,17,29,.85);color:#fff;font-size:12px;white-space:nowrap}.approach.n{top:12px;left:50%;transform:translateX(-50%)}.approach.s{bottom:12px;left:50%;transform:translateX(-50%)}.approach.e{right:9px;top:50%;transform:translateY(-50%)}.approach.w{left:9px;top:50%;transform:translateY(-50%)}.signal{width:11px;height:11px;border-radius:50%;background:#e74c3c;box-shadow:0 0 9px #e74c3c66}.signal.green{background:#30d985;box-shadow:0 0 9px #30d98599}.signal.yellow{background:#ffd166;box-shadow:0 0 9px #ffd16699}.cars{position:absolute;display:flex;gap:4px;align-items:center;justify-content:center;pointer-events:none}.cars.n{top:78px;left:54%;flex-direction:column}.cars.s{bottom:78px;left:43%;flex-direction:column}.cars.e{right:82px;top:54%;flex-direction:row}.cars.w{left:82px;top:43%;flex-direction:row}.car{background:#7dd3fc;border:1px solid #e0f2fe;border-radius:3px;width:12px;height:19px}.cars.e .car,.cars.w .car{width:19px;height:12px}.legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--muted)}.lights{display:flex;gap:12px;justify-content:center;background:var(--panel2);border-radius:12px;padding:16px;margin:12px 0}.lamp{width:34px;height:34px;border-radius:50%;background:#3c4654;border:2px solid #657080}.lamp.red.active{background:#ef4444;box-shadow:0 0 17px #ef444488}.lamp.yellow.active{background:#facc15;box-shadow:0 0 17px #facc1588}.lamp.green.active{background:#22c55e;box-shadow:0 0 17px #22c55e88}.phase{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.phase:last-child{border:0}.phase.current{color:var(--accent);font-weight:700}.log{height:145px;overflow:auto;background:var(--panel2);padding:12px;border-radius:9px;font:12px ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.foot{font-size:12px;color:var(--muted);padding:0 20px 22px;max-width:1380px;margin:auto}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}input[type=range]{width:100%;accent-color:var(--accent)}.statusline{margin:8px 0 14px;font-size:13px;color:var(--muted)}.sim-indicator{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-left:12px}.sim-indicator .dot{background:#34d399}.moving-car{position:absolute;z-index:3;width:13px;height:22px;border-radius:4px;background:#fbbf24;border:1px solid #fff9;box-shadow:0 2px 5px #0005;pointer-events:none}.moving-car.horizontal{width:22px;height:13px}.moving-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}.stat strong{font-size:22px}@media(max-width:900px){.wrap{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.map{height:370px}}@media(max-width:460px){header{padding:15px}.wrap{padding:12px}.map{height:315px}.approach{font-size:10px;padding:5px}.cars.n{top:58px}.cars.s{bottom:58px}.cars.e{right:57px}.cars.w{left:57px}}
+.map.realistic{height:570px;background:#a5a99c}.map.realistic svg{width:100%;height:100%;display:block}.map-signal{position:absolute;z-index:5;display:flex;align-items:center;gap:6px;padding:6px 9px;background:#172333e8;border:1px solid #ffffff33;border-radius:8px;color:white;font-size:12px}.map-signal.n{top:8px;right:10px}.map-signal.s{bottom:8px;left:10px}.map-signal.e{right:10px;bottom:8px}.map-signal.w{left:10px;top:8px}.map-signal .signal{flex:none}.realistic .vehicle{filter:drop-shadow(1px 2px 2px #0008)}@media(max-width:650px){.map.realistic{height:360px}}
+.ai-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.ai-kpi{background:var(--panel2);border-radius:10px;padding:12px}.ai-kpi strong{display:block;font-size:21px;margin-top:6px}.ai-detail{font-size:12px;color:var(--muted);line-height:1.55}.ai-grid .ai-kpi span{font-size:12px;color:var(--muted)}@media(max-width:650px){.ai-grid{grid-template-columns:1fr}}
+
+.decision-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.decision-stats>div{background:var(--panel2);border-radius:9px;padding:10px}.decision-stats strong{display:block;font-size:19px;margin-top:4px}.decision-stats span{font-size:11px;color:var(--muted)}.decision-path{margin:10px 0 0;padding-left:19px;font-size:12px;line-height:1.7;color:var(--muted)}.decision-path li:last-child{color:var(--accent);font-weight:700}.decision-caption{font-size:12px;color:var(--muted);line-height:1.5}.decision-heading{font-size:12px;font-weight:700;margin-top:12px}.hidden-support{display:none!important}.simple-wrap{grid-template-columns:minmax(0,1.8fr) minmax(270px,.8fr);gap:14px;max-width:1250px}.simple-stats{grid-template-columns:repeat(3,1fr)!important}.simple-wrap .panel{padding:16px}.simple-wrap .map.realistic{height:520px}.compact-controls{margin-top:15px}.simple-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.simple-controls .field{margin:0}.simple-controls select{width:100%}.simple-ai strong{font-size:22px;color:var(--accent)}.simple-note{grid-column:1/-1;font-size:12px;margin:0}.simple-hardware .lights{margin:12px 0;padding:12px}@media(max-width:900px){.simple-wrap{grid-template-columns:1fr}.simple-wrap .map.realistic{height:400px}}@media(max-width:500px){.simple-stats .stat{padding:9px}.simple-stats .stat strong{font-size:17px}.simple-wrap .map.realistic{height:330px}.simple-controls{grid-template-columns:1fr}}
+
+/* Optional hardware demonstrator: works on GitHub Pages without a board. */
+.hardware-demo{margin:13px 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.hardware-demo .demo-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.hardware-demo .demo-heading strong{font-size:14px}
+.demo-board{display:flex;align-items:center;justify-content:space-around;gap:14px;flex-wrap:wrap}
+.demo-chip{background:#243f52;color:#f4f7fb;border:1px solid #53788c;border-radius:8px;padding:12px 15px;text-align:center;min-width:115px;font-size:12px}
+.demo-chip small{display:block;color:#c7e1e8;margin-top:5px}
+.demo-wire{font-size:12px;color:var(--muted);text-align:center;flex:1;min-width:70px}
+.demo-breadboard{display:flex;gap:12px;align-items:center;justify-content:center;background:#d8d4c8;padding:12px 18px;border-radius:10px;border:3px solid #aaa89e}
+.demo-led{display:flex;flex-direction:column;align-items:center;gap:5px;color:#28303a;font-size:10px;font-weight:700}
+.demo-led .bulb{width:29px;height:29px;border-radius:50%;border:3px solid #65717b;background:#5d6870;box-shadow:inset 0 2px 6px #0008;transition:background .15s,box-shadow .15s}
+.demo-led .bulb.red.on{background:#ef4444;box-shadow:0 0 17px 5px #ef444488}
+.demo-led .bulb.yellow.on{background:#facc15;box-shadow:0 0 17px 5px #facc1588}
+.demo-led .bulb.green.on{background:#22c55e;box-shadow:0 0 17px 5px #22c55e88}
+.demo-led .pin{font-size:10px;color:#45505a}
+.hardware-demo details{margin-top:10px;font-size:12px;color:var(--muted)}
+.hardware-demo summary{cursor:pointer}
+.hardware-demo table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+.hardware-demo td,.hardware-demo th{padding:6px;border-bottom:1px solid var(--line);text-align:left}
+.demo-note{font-size:12px;color:var(--muted);margin-top:9px}
+
+/* Presentation-focused visual refresh: styling only; all application IDs and event handlers retained. */
+:root{--bg:#090f1c;--panel:#121d2e;--panel2:#1b2b40;--text:#f3f7ff;--muted:#9aafc5;--line:#263b53;--accent:#64c9ef;--grass:#829c89}
+body{background:radial-gradient(ellipse 70% 35% at 48% -10%,#1a3552 0%,transparent 75%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;letter-spacing:-.01em}
+body.light{--bg:#eff4f8;--panel:#ffffff;--panel2:#edf4fa;--text:#183046;--muted:#65788d;--line:#d6e2ec;--accent:#176e9a;background:linear-gradient(180deg,#e1eef6,var(--bg) 360px)}
+header{max-width:1320px;margin:auto;border-bottom:0;padding:27px 24px 14px;align-items:center}
+header h1{font-size:clamp(23px,2.4vw,32px);font-weight:800;letter-spacing:-.045em;line-height:1.12}
+header p{margin-top:8px;font-size:13px;letter-spacing:.015em}.header-sep{opacity:.4;margin:0 5px}
+#theme{border-radius:50%;width:42px;height:42px;padding:0;flex-shrink:0}
+.wrap.simple-wrap{max-width:1320px;grid-template-columns:minmax(0,1.65fr) minmax(340px,.95fr);gap:16px;padding:16px 24px 26px;align-items:start}
+.simple-wrap .panel{border-radius:18px;padding:20px;box-shadow:0 10px 30px #00000015}
+.simple-wrap .stats{gap:13px}
+.simple-stats .stat{border:1px solid var(--line);border-radius:16px;padding:17px 20px;background:linear-gradient(140deg,var(--panel2),var(--panel));min-height:100px}
+.simple-stats .stat span{font-size:12px;letter-spacing:.025em}
+.simple-stats .stat strong{font-size:clamp(24px,2.4vw,34px);line-height:1.2;letter-spacing:-.04em;margin:7px 0 0}
+.simple-stats .stat:first-child strong{color:var(--accent)}
+.simple-stats #phaseRemaining{display:block;margin-top:5px;font-size:12px;color:var(--muted)}
+h2{font-size:16px;letter-spacing:-.025em;margin:0 0 15px;font-weight:750}
+.heading-icon{color:var(--accent);margin-right:5px}.section-tag{font-size:10px;font-weight:750;letter-spacing:.12em;color:var(--accent);border:1px solid var(--line);padding:4px 6px;border-radius:5px;margin-left:5px;vertical-align:middle}
+.simple-wrap .map.realistic{height:560px;border:1px solid #64758355;border-radius:13px;background:#aeb5a4}
+.compact-controls{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.compact-controls h2{font-size:13px;color:var(--muted);margin-bottom:11px}
+.simple-controls{gap:13px}.simple-controls label{font-size:12px;margin-bottom:7px}.simple-controls select{height:44px;border-radius:10px;font-weight:600;background:var(--panel2)}
+.simple-ai{position:relative;overflow:hidden}.simple-ai:before{content:'';position:absolute;right:-42px;top:-58px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#46b9ec19,transparent 70%);pointer-events:none}
+.decision-stats{gap:8px;margin:16px 0}.decision-stats>div{border:1px solid var(--line);border-radius:11px;padding:12px 10px;background:var(--panel2)}
+.decision-stats strong{font-size:24px!important;line-height:1.15;letter-spacing:-.035em}.decision-stats>div:last-child{border-color:#64c9ef65;background:linear-gradient(140deg,#64c9ef18,var(--panel2))}
+.decision-heading{border-top:1px solid var(--line);padding-top:14px;margin-top:14px;font-size:12px;color:var(--text)}
+.decision-path{font-size:12px;line-height:1.85;margin-top:9px}.decision-path li:last-child{color:var(--accent)}
+#aiDecisionFootnote{display:none}#aiLastApplied{font-size:11px;border-top:1px solid var(--line);padding-top:10px;margin-top:12px}
+.simple-hardware .hardware-demo{background:transparent;border:0;padding:0;margin:14px 0 10px}
+.demo-heading{margin-bottom:12px!important}.demo-heading strong{font-size:12px!important;color:var(--muted);font-weight:650}
+.demo-board{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:17px 10px;flex-wrap:nowrap;gap:7px}
+.demo-chip{min-width:100px;padding:11px 8px;background:#203e56;border:1px solid #406b88;border-radius:10px;font-size:11px;box-shadow:0 5px 12px #0002}
+.demo-chip small{font-size:10px}.demo-wire{min-width:15px;flex:0;color:var(--accent);font-size:26px;font-weight:700}
+.demo-breadboard{padding:13px 10px;gap:11px;border:2px solid #b2b1aa;border-radius:12px;flex:1;min-width:0}
+.demo-led .bulb{width:28px;height:28px}.demo-led{font-size:9px}.demo-led .pin{font-size:9px}
+.demo-note{font-size:11px;line-height:1.5;margin:9px 0 12px}
+.simple-hardware .lights{display:none!important} /* duplicate LED indicator hidden; DOM retained for firmware feedback */
+#hwState{font-size:11px;margin:9px 0 13px}.simple-hardware .controls{gap:7px}
+.simple-hardware button{font-size:12px;padding:9px 11px;border-radius:9px}
+.simple-hardware .field{margin-top:15px!important;margin-bottom:0}
+#syncStatus{font-size:11px;margin:5px 0 0}
+.simple-hardware .pill{font-size:11px;padding:5px 8px}
+.simple-wrap .panel details{font-size:12px}.simple-wrap summary{cursor:pointer}
+.foot{max-width:1320px;padding:0 24px 24px;font-size:11px;line-height:1.6}
+@media(max-width:1050px){.wrap.simple-wrap{grid-template-columns:minmax(0,1.3fr) minmax(310px,.9fr)}.simple-wrap .map.realistic{height:460px}}
+@media(max-width:900px){.wrap.simple-wrap{grid-template-columns:1fr}.simple-wrap .map.realistic{height:490px}}
+@media(max-width:560px){header{padding:18px 14px 8px}.wrap.simple-wrap{padding:12px 12px 24px;gap:12px}.simple-wrap .panel{padding:14px}.simple-stats{gap:7px}.simple-stats .stat{padding:12px 9px;min-height:82px}.simple-stats .stat strong{font-size:20px}.simple-stats .stat span{font-size:10px}.simple-wrap .map.realistic{height:340px}.demo-board{padding:10px 6px}.demo-chip{min-width:80px;font-size:9px}.demo-chip small{font-size:8px}.demo-breadboard{gap:6px;padding:10px 5px}.demo-led .bulb{width:22px;height:22px}.demo-led{font-size:8px}.demo-wire{font-size:19px}.simple-controls{grid-template-columns:1fr 1fr;gap:8px}.simple-controls select{font-size:12px;padding:7px}}
+
+/* Two-column presentation: intersection remains visible while controls scroll. */
+.wrap.simple-wrap.split-dashboard{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(330px,.95fr);align-items:start;gap:18px;max-width:1600px}
+.dashboard-left{min-width:0;position:sticky;top:12px;align-self:start;display:flex;flex-direction:column;gap:12px}
+.dashboard-right{min-width:0;display:flex;flex-direction:column;gap:14px}
+.split-dashboard .wide{grid-column:auto}
+.split-dashboard .simple-stats{width:100%}
+.split-dashboard .map.realistic{height:clamp(400px,calc(100vh - 235px),690px);min-height:400px}
+.split-dashboard .dashboard-left>.panel{min-width:0}
+.split-dashboard .dashboard-right>.panel,.split-dashboard .dashboard-right>.compact-controls{width:100%;margin:0}
+.split-dashboard .dashboard-right .simple-controls{grid-template-columns:1fr 1fr}
+@media(max-width:1050px){.wrap.simple-wrap.split-dashboard{grid-template-columns:minmax(0,1.35fr) minmax(300px,.95fr)}.split-dashboard .map.realistic{height:clamp(370px,calc(100vh - 215px),580px)}}
+@media(max-width:780px){.wrap.simple-wrap.split-dashboard{grid-template-columns:1fr}.dashboard-left{position:static}.split-dashboard .map.realistic{height:460px;min-height:0}.dashboard-right{gap:12px}}
+@media(max-width:560px){.split-dashboard .map.realistic{height:340px}.split-dashboard .dashboard-right .simple-controls{grid-template-columns:1fr 1fr}}
+
+/* Numeric decision-tree flow, following the actual trained model branches. */
+.decision-flow{display:block;margin:12px 0 4px;max-height:440px;overflow:auto;padding:5px;border-radius:12px;background:var(--panel2)}
+.flow-node{display:flex;align-items:center;gap:11px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 12px;min-height:62px}
+.flow-step{display:grid;place-items:center;width:26px;height:26px;flex:none;border-radius:50%;background:#2873a5;color:white;font-size:12px;font-weight:750}
+.flow-content{flex:1;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.flow-label{font-size:10px;font-weight:750;letter-spacing:.06em;color:var(--muted)}
+.flow-numbers{display:flex;align-items:center;gap:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.flow-numbers strong{font-size:23px;letter-spacing:-.04em}.flow-numbers span{font-size:18px;color:var(--accent)}
+.flow-connector{height:33px;display:flex;align-items:center;justify-content:center;gap:9px;color:var(--accent);font-weight:750}
+.flow-connector>span:first-child{font-size:21px}.flow-choice{font-size:10px;letter-spacing:.09em;border:1px solid var(--line);border-radius:5px;padding:2px 6px;color:var(--text)}
+.flow-result{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #51cba377;background:linear-gradient(100deg,#2cae8730,var(--panel2));border-radius:12px;padding:12px 15px}
+.flow-result span{font-size:11px;font-weight:750;letter-spacing:.07em;color:var(--muted)}.flow-result strong{font-size:28px;color:#38cfa2;font-variant-numeric:tabular-nums}
+.flow-placeholder{border:1px dashed var(--line);border-radius:10px;padding:18px;text-align:center;font-size:12px;color:var(--muted)}
+</style><style>
+.model-evidence{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.model-evidence-title{font-size:12px;font-weight:750;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.model-evidence-title span{color:var(--accent);font-weight:600}
+.model-evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 5px}
+.model-evidence-grid>div{display:flex;flex-direction:column;gap:3px}
+.model-evidence-grid small,.model-evidence-sub{font-size:11px;color:var(--muted)}
+.model-evidence-grid strong{font-size:20px}
+.map-signal{gap:5px;flex-wrap:nowrap}.data-panel .controls button{flex:1}</style></head><body>
+<header><div><h1>AI-Assisted Hardware-in-the-Loop Digital Twin of the Wadi Saqra Traffic Signal System</h1><p>Amman, Jordan <span class="header-sep">/</span> Hybrid signal control</p></div><div class="row"><button id="theme">☀ / ☾</button></div></header>
+<main class="wrap simple-wrap split-dashboard"><div class="dashboard-left"><section class="wide stats simple-stats"><div class="stat"><span>Active approach</span><strong id="phaseName">North</strong><span id="phaseRemaining">—</span></div><div class="stat"><span>Total vehicles waiting</span><strong id="totalQueue">0</strong></div><div class="stat"><span>Total average wait</span><strong id="avgWait">0 s</strong></div><span class="hidden-support" id="simClock"></span><span class="hidden-support" id="simStatus"></span></section><section class="panel"><div class="row"><h2>Intersection</h2></div><div aria-label="Satellite-reference-inspired Wadi Saqra intersection with moving traffic" class="map realistic"><svg aria-label="Asymmetric Wadi Saqra-inspired junction with asymmetric verified approach lane counts and animated cars" id="roadScene" preserveaspectratio="xMidYMid meet" role="img" viewbox="0 0 900 620">
+<rect fill="#b4b6a8" height="620" width="900"></rect>
+<g id="siteFeatures">
+<!-- Triangular green parcel to northwest of the intersection -->
+<path d="M90 90 L287 27 Q326 122 355 209 L247 286 L119 239 Z" fill="#879c7d" stroke="#d2d0be" stroke-width="7"></path>
+<path d="M129 119 L276 66 L318 198 L243 250 L151 216 Z" fill="#6c8b69" opacity=".65"></path>
+<path d="M175 125 Q245 147 252 225" fill="none" opacity=".5" stroke="#53765b" stroke-width="19"></path>
+<!-- Northeast construction parcel and curved edge -->
+<path d="M624 -20 L900 -20 L900 132 Q795 190 682 135 Z" fill="#b6ae9d" stroke="#d2c6b3" stroke-width="6"></path>
+<g opacity=".5" stroke="#827e72" stroke-width="2"><path d="M687 22 L857 118 M855 20 L690 129 M724 10 L785 149 M760 8 L822 146"></path></g>
+<!-- Southwest urban buildings -->
+<g fill="#d1c9b7" stroke="#999e93" stroke-width="5"><rect height="86" rx="3" width="118" x="13" y="498"></rect><rect height="92" rx="3" width="112" x="152" y="530"></rect><rect height="75" rx="3" width="86" x="12" y="365"></rect></g>
+<!-- Southeast shops and car-dealer forecourt -->
+<path d="M708 426 L893 378 L899 616 L737 620 Z" fill="#a8ada2" stroke="#d6d3c5" stroke-width="5"></path>
+<rect fill="#c8c5b7" height="101" rx="4" stroke="#8d928b" stroke-width="4" width="101" x="779" y="482"></rect>
+</g>
+<g id="roadGeometry"></g>
+<g id="roadMarkings"></g>
+<g id="vehicleScene"></g>
+<g fill="#fff" font-family="system-ui,sans-serif" font-size="12" font-weight="700">
+<g transform="translate(30 28)"><rect fill="#172333" height="27" opacity=".9" rx="6" width="238"></rect><text x="11" y="18">WADI SAQRA · SHMEISANI</text></g>
+<g transform="translate(375 72)"><rect fill="#172333" height="26" opacity=".9" rx="6" width="70" x="-35" y="-13"></rect><text text-anchor="middle" y="5">NORTH</text></g>
+<g transform="translate(600 589)"><rect fill="#172333" height="26" opacity=".9" rx="6" width="70" x="-35" y="-13"></rect><text text-anchor="middle" y="5">SOUTH</text></g>
+<g transform="translate(60 405)"><rect fill="#172333" height="26" opacity=".9" rx="6" width="64" x="-32" y="-13"></rect><text text-anchor="middle" y="5">WEST</text></g>
+<g transform="translate(840 227)"><rect fill="#172333" height="26" opacity=".9" rx="6" width="58" x="-29" y="-13"></rect><text text-anchor="middle" y="5">EAST</text></g>
+</g></svg><div class="map-signal n"><span class="signal" id="sig-n"></span>N <b id="q-n">0</b></div><div class="map-signal s"><span class="signal" id="sig-s"></span>S <b id="q-s">0</b></div><div class="map-signal e"><span class="signal" id="sig-e"></span>E <b id="q-e">0</b></div><div class="map-signal w"><span class="signal" id="sig-w"></span>W <b id="q-w">0</b></div><div hidden=""><div id="cars-n"></div><div id="cars-s"></div><div id="cars-e"></div><div id="cars-w"></div></div></div>
+
+
+
+</section></div><aside aria-label="Traffic controls and hardware" class="dashboard-right"><section class="compact-controls"><h2>Controls</h2><div class="simple-controls"><div class="field"><label for="scenario">Traffic</label><select id="scenario"><option value="normal">Normal</option><option value="rush">Rush hour</option><option value="quiet">Low traffic</option></select></div><div class="field"><label for="timingMode">Signal timing</label><select id="timingMode"><option value="fixed">Fixed · All green time 40s</option><option value="adaptive">Hybrid · East AI-timed</option></select></div></div><div class="hidden-support" id="phaseList"></div></section><section class="panel simple-ai" id="aiPanel"><h2><span class="heading-icon">✦</span> AI timing <span class="section-tag">EAST</span></h2><p class="decision-caption" id="aiDecisionStatus">Choose Hybrid · East AI to enable decisions.</p><div class="decision-stats"><div><span>East queue</span><strong id="aiEastVehicles">—</strong></div><div><span>Other queues</span><strong id="aiOtherVehicles">—</strong></div><div><span>Recommended</span><strong id="aiRecommendation">—</strong></div></div><div class="decision-heading">Decision path</div><div class="decision-flow" id="aiDecisionPath" aria-label="AI decision tree path"><div class="flow-placeholder">Select Hybrid · East AI</div></div><div class="model-evidence" id="modelEvidence" aria-label="Simulation-trained model evaluation">
+<div class="model-evidence-title">How the AI was tested <span id="modelAccuracy">—</span></div>
+<div class="model-evidence-grid"><div><small>Fixed signals · total waiting</small><strong id="fixedDelay">—</strong></div><div><small>AI-assisted · total waiting</small><strong id="hybridDelay">—</strong></div></div>
+<div class="model-evidence-sub" id="benchmarkSummary">Same simulated traffic tested with fixed and AI timing. Lower waiting is better.</div></div>
+<p class="decision-caption" id="aiDecisionFootnote">The AI learned from traffic simulations and chooses how long East stays green.</p><p class="decision-caption" id="aiLastApplied">Last applied East decision: none yet</p><span class="hidden-support" id="aiDuration">40 s</span><span class="hidden-support" id="aiBadge"></span><span class="hidden-support" id="aiNext"></span><span class="hidden-support" id="aiQueue"></span><span class="hidden-support" id="aiReason"></span><span class="hidden-support" id="aiModelInfo"></span></section><section class="panel simple-hardware"><div class="row"><h2><span class="heading-icon">▣</span> Physical controller</h2><span class="pill"><span class="dot" id="hwDot"></span><span id="hwStatus">Disconnected</span></span></div><div aria-label="Simulated STM32 LED demonstrator" class="hardware-demo">
+<div class="demo-heading"><strong>STM32 signal preview</strong><span class="pill" id="demoStatus">Virtual preview · no STM32 needed</span></div>
+<div class="demo-board"><div class="demo-chip"><b>NUCLEO-F401RE</b><small>D12 · D11 · D10 · GND</small></div><div aria-hidden="true" class="demo-wire">⟶</div><div aria-label="Three LED breadboard circuit driven by STM32 pins D12 D11 D10" class="demo-breadboard" role="img"><div class="demo-led"><span class="bulb red" id="demo-red"></span><span>RED</span><span class="pin">D12</span></div><div class="demo-led"><span class="bulb yellow" id="demo-yellow"></span><span>YELLOW</span><span class="pin">D11</span></div><div class="demo-led"><span class="bulb green" id="demo-green"></span><span>GREEN</span><span class="pin">D10</span></div></div></div>
+<p class="demo-note" id="demoExplanation">Live virtual preview · Connect the board to show physical LED feedback.</p>
+<details><summary>View physical breadboard wiring</summary><table><thead><tr><th>Signal</th><th>Connection (330 Ω resistor per LED)</th></tr></thead><tbody>
+<tr><td>Red</td><td>D12 → A5 → 330 Ω resistor E5–F5 → anode I5 → cathode (−)</td></tr>
+<tr><td>Yellow</td><td>D11 → A10 → 330 Ω resistor E10–F10 → anode I10 → cathode (−)</td></tr>
+<tr><td>Green</td><td>D10 → A15 → 330 Ω resistor E15–F15 → anode I15 → cathode (−)</td></tr>
+<tr><td>Ground</td><td>STM32 GND → breadboard negative (−) rail; connect all LED cathodes to this rail</td></tr>
+</tbody></table></details></div><div class="lights"><div class="lamp red" id="hw-red"></div><div class="lamp yellow" id="hw-yellow"></div><div class="lamp green" id="hw-green"></div></div><p class="statusline" id="hwState">No hardware state received</p><div class="controls"><button class="primary" id="connect">Connect STM32</button><button disabled="" id="disconnect">Disconnect</button></div><div class="controls" style="margin-top:10px"><button class="hwcmd" data-command="MODE,MANUAL" disabled="">Manual mode</button><button class="hwcmd" data-command="LIGHT,RED" disabled="">Set red</button></div><details style="margin-top:12px"><summary style="cursor:pointer;color:var(--muted)">Manual LED controls and diagnostics</summary><div class="controls" style="margin-top:10px"><button class="hwcmd" data-command="MODE,AUTO" disabled="">Auto mode</button><button class="hwcmd" data-command="LIGHT,GREEN" disabled="">Green</button><button class="hwcmd" data-command="LIGHT,YELLOW" disabled="">Yellow</button></div><p class="small">For manual testing, select <b>Manual mode</b>, then use the LED buttons in this order: <b>Red → Green → Yellow → Red</b>. The lights above show the state reported by the STM32.</p><pre id="serialDiagnostics" style="font:12px Consolas,monospace;white-space:pre-wrap;max-height:110px;overflow:auto;background:var(--panel2);padding:8px;border-radius:8px">Waiting for serial connection…</pre></details><div class="field" style="margin-top:14px"><label><input disabled="" id="syncEast" type="checkbox"/> Mirror East signal on STM32</label><p class="small" id="syncStatus">Connect, select Manual, set Red, then enable.</p></div></section><section class="panel data-panel"><details><summary style="font-weight:650;cursor:pointer">Export event log</summary><div class="controls" style="margin-top:12px"><button id="csv">Download CSV</button></div><p class="small" id="dataFeedback" role="status" style="margin-top:8px">Download simulation events as CSV.</p></details><div hidden><button id="importBtn">Import scenario JSON</button><input accept=".json,application/json" id="importFile" type="file"/><div aria-live="polite" class="log" id="log" role="log"></div></div></section></aside>
+
+</main><div class="foot">Academic prototype · Simulated traffic · Historical cycle reference, not current signal data · Not for road use</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const names=['North','East','South','West'];const keys=['n','e','s','w'];
+const scenarios={normal:[.33,.32,.33,.32],rush:[.72,.7,.72,.7],quiet:[.12,.1,.12,.1]};
+const GREEN_SECONDS=40,CLEAR_SECONDS=1.25; // Fixed baseline: 4*(40+1.25) = 165 s
+let sim={running:true,seconds:0,phase:0,phaseElapsed:0,clearance:false,queue:[5,5,5,5],waitSum:0,departures:0,scenario:'normal',speed:1,events:[]};
+let port=null,writer=null,reader=null,readTask=null,hw='';let eastSync=false,eastSyncState='idle',lastEastPhase='';
+// Train from simulated traffic outcomes, not a hand-written target formula.
+// A deterministic, aggregate queue simulator is used for offline training/evaluation.
+// This is a simplified model, separate from the animated vehicle visualization.
+const durations=[20,30,40,50];
+const trafficProfiles=[
+ {eastRate:.18,otherRate:.17},{eastRate:.36,otherRate:.33},
+ {eastRate:.55,otherRate:.48},{eastRate:.70,otherRate:.63},
+ {eastRate:.85,otherRate:.72}
+];
+function seeded(seed){let s=seed>>>0;return ()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
+function poissonish(rate,rng){const whole=Math.floor(rate);return whole+(rng()<rate-whole?1:0);}
+// The evaluation horizon is two full four-phase cycles. Every candidate sees
+// the SAME arrival stream, including the three fixed phases and clearances.
+function rollout(initial,profile,eastSeconds,seed){
+ const rng=seeded(seed),q=[initial.q,initial.other/3,initial.other/3,initial.other/3];
+ const arrivals=[profile.otherRate,profile.eastRate,profile.otherRate,profile.otherRate];
+ let delay=0,served=0,peak=0;
+ for(let cycle=0;cycle<2;cycle++)for(let phase=0;phase<4;phase++){
+  const duration=(phase===1?eastSeconds:40)+CLEAR_SECONDS;
+  const steps=Math.ceil(duration);
+  for(let t=0;t<steps;t++){
+   const green=t<duration-CLEAR_SECONDS;
+   for(let i=0;i<4;i++)q[i]+=poissonish(arrivals[i],rng);
+   if(green){const moved=Math.min(q[phase],1.05);q[phase]-=moved;served+=moved;}
+   delay+=q.reduce((s,n)=>s+n,0);
+   peak=Math.max(peak,...q);
+  }
+ }
+ return {delay,served,peak};
+}
+function outcomeScore(result){return result.delay+12*result.peak-8*result.served;}
+function bestDuration(q,other,profile,seed){
+ let best=null;
+ for(const duration of durations){
+  const result=rollout({q,other},profile,duration,seed);
+  const score=outcomeScore(result);
+  if(!best||score<best.score)best={duration,score};
+ }
+ return best.duration;
+}
+const training=[],validation=[];
+// Independent seeds and samples: 80% training / 20% holdout.
+const dataRng=seeded(20261118);
+for(let i=0;i<650;i++){
+ const q=Math.floor(dataRng()*51),other=Math.floor(dataRng()*91);
+ const profile=trafficProfiles[Math.floor(dataRng()*trafficProfiles.length)];
+ const seed=100000+i*37;
+ const row={q,other,eastRate:profile.eastRate,otherRate:profile.otherRate,label:bestDuration(q,other,profile,seed)};
+ (i%5===0?validation:training).push(row);
+}
+function trainTree(rows,depth=0){
+ const counts=new Map();for(const r of rows)counts.set(r.label,(counts.get(r.label)||0)+1);
+ const majority=[...counts].sort((a,b)=>b[1]-a[1])[0][0];
+ if(depth>=7||counts.size===1||rows.length<8)return {label:majority};
+ const gini=a=>{if(!a.length)return 1;const c=new Map();for(const r of a)c.set(r.label,(c.get(r.label)||0)+1);return 1-[...c.values()].reduce((sum,n)=>sum+(n/a.length)**2,0);};
+ let best=null;
+ for(const feature of ['q','other','eastRate','otherRate'])for(const threshold of [...new Set(rows.map(r=>r[feature]))].sort((a,b)=>a-b).slice(1)){
+  const left=rows.filter(r=>r[feature]<threshold),right=rows.filter(r=>r[feature]>=threshold);
+  if(!left.length||!right.length)continue;
+  const loss=(left.length*gini(left)+right.length*gini(right))/rows.length;
+  if(!best||loss<best.loss)best={feature,threshold,left,right,loss};
+ }
+ if(!best||best.loss>=gini(rows)-0.00001)return {label:majority};
+ return {feature:best.feature,threshold:best.threshold,left:trainTree(best.left,depth+1),right:trainTree(best.right,depth+1)};
+}
+const timingTree=trainTree(training);
+function tracePrediction(q,other,profile=currentTrafficProfile()){
+ let n=timingTree;const steps=[],nodes=[];
+ while(n.feature){
+  const value=qOrOther(n.feature,q,other,profile),left=value<n.threshold;
+  steps.push(`${featureLabel(n.feature)}: ${value} ${left?'<':'≥'} ${n.threshold} → ${left?'left':'right'} branch`);
+  nodes.push({feature:n.feature,value,threshold:n.threshold,comparison:left?'<':'≥',branch:left?'YES':'NO'});
+  n=left?n.left:n.right;
+ }
+ steps.push(`Decision-tree leaf → ${n.label} seconds`);
+ return {duration:n.label,steps,nodes};
+}
+function predict(q,other,profile=currentTrafficProfile()){return tracePrediction(q,other,profile).duration;}
+function currentTrafficProfile(){const rates=scenarios[sim.scenario];return {eastRate:rates[1]*.78,otherRate:(rates[0]+rates[2]+rates[3])*.78/3};}
+function featureLabel(feature){return ({q:'East queue',other:'Other queues',eastRate:'East arrival rate',otherRate:'Other arrival rate'})[feature];}
+function qOrOther(feature,q,other,profile){return feature==='q'?q:feature==='other'?other:profile[feature];}
+const holdoutAccuracy=validation.filter(r=>predict(r.q,r.other,r)===r.label).length/validation.length;
+// Paired deterministic benchmark: same initial queues and arrivals for both policies.
+const benchmark={fixed:{delay:0,served:0},hybrid:{delay:0,served:0}};
+for(let i=0;i<90;i++){
+ const rng=seeded(70000+i),q=Math.floor(rng()*45),other=Math.floor(rng()*75);
+ const profile=trafficProfiles[i%trafficProfiles.length],seed=90000+i*17;
+ const fixed=rollout({q,other},profile,40,seed);
+ const hybrid=rollout({q,other},profile,predict(q,other,profile),seed);
+ benchmark.fixed.delay+=fixed.delay;benchmark.fixed.served+=fixed.served;
+ benchmark.hybrid.delay+=hybrid.delay;benchmark.hybrid.served+=hybrid.served;
+}
+
+let timingMode='fixed',activeGreenSeconds=GREEN_SECONDS,lastEastDecision=null,lastDecisionRender=-1;
+$('modelAccuracy').textContent=Math.round(holdoutAccuracy*100)+'% prediction accuracy';
+$('fixedDelay').textContent=Math.round(benchmark.fixed.delay/90).toLocaleString();
+$('hybridDelay').textContent=Math.round(benchmark.hybrid.delay/90).toLocaleString();
+const relative=(benchmark.hybrid.delay/benchmark.fixed.delay-1)*100;
+$('benchmarkSummary').textContent=`90 paired synthetic traffic scenarios · ${relative<=0?Math.abs(relative).toFixed(1)+'% less':'+'+relative.toFixed(1)+'% more'} queue-delay · served ${Math.round(benchmark.fixed.served/90)} fixed vs ${Math.round(benchmark.hybrid.served/90)} hybrid · different cycle lengths; not real-world validation`;
+
+function greenForApproach(i){if(timingMode==='fixed'||i!==1)return GREEN_SECONDS;const q=sim.queue[i],other=sim.queue.reduce((a,b)=>a+b,0)-q;return predict(q,other);}
+function renderDecisionFlow(prediction){
+ const host=$('aiDecisionPath');
+ if(!prediction){host.replaceChildren();const idle=document.createElement('div');idle.className='flow-placeholder';idle.textContent='Switch to Hybrid · East AI-timed to view the tree';host.append(idle);return;}
+ // Branching SVG: active decisions are bright; unselected branches are muted.
+ // Every threshold and branch comes from the trained timingTree, not hardcoded rules.
+ const svgNS='http://www.w3.org/2000/svg';
+ const svg=document.createElementNS(svgNS,'svg');
+ const depth=prediction.nodes.length;
+ const height=125+depth*118;
+ svg.setAttribute('viewBox',`0 0 500 ${height}`);
+ svg.setAttribute('role','img');
+ svg.setAttribute('aria-label','Trained decision tree with highlighted YES or NO branches and final green time '+prediction.duration+' seconds');
+ svg.style.cssText='display:block;width:100%;min-width:350px;height:auto;overflow:visible';
+ const add=(tag,attrs,parent=svg)=>{const e=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));parent.appendChild(e);return e;};
+ const line=(x1,y1,x2,y2,active)=>add('path',{d:`M${x1} ${y1} L${x1} ${(y1+y2)/2} L${x2} ${(y1+y2)/2} L${x2} ${y2}`,fill:'none',stroke:active?'#39cfa2':'#75869b','stroke-width':active?3:1.7,'stroke-dasharray':active?'none':'5 5',opacity:active?1:.65});
+ const label=(x,y,value,color='#dbe8f5',size=13,weight=600)=>{const t=add('text',{x,y,'text-anchor':'middle',fill:color,'font-size':size,'font-weight':weight,'font-family':'system-ui, sans-serif'});t.textContent=value;return t;};
+ const box=(x,y,w,h,active=false,leaf=false)=>add('rect',{x,y,width:w,height:h,rx:11,fill:leaf?(active?'#134a40':'#253344'):(active?'#193e52':'#273344'),stroke:active?'#39cfa2':'#64748b','stroke-width':active?2.5:1,opacity:active?1:.68});
+ let node=timingTree;
+ for(let i=0;i<depth;i++){
+  const step=prediction.nodes[i],y=15+i*118;
+  const yes=step.comparison==='<';
+  const selected=step.comparison==='<';
+  const altX=yes?355:15;
+  const activeX=180;
+  box(activeX,y,140,62,true);
+  label(250,y+22,featureLabel(step.feature).toUpperCase(),'#9fb9cb',11,700);
+  label(250,y+46,`${Number(step.value.toFixed(2))} < ${Number(step.threshold.toFixed(2))} ?`,'#ffffff',18,750);
+  const nextY=y+118;
+  const sibling=selected?node.right:node.left;
+  const summary=(n)=>{if(!n.feature)return `${n.label} s`;let vals=[];const walk=x=>{if(!x.feature)vals.push(x.label);else{walk(x.left);walk(x.right);}};walk(n);return [...new Set(vals)].sort((a,b)=>a-b).join(' / ')+' s';};
+  const siblingText=summary(sibling);
+  box(altX,y+88,130,48,false,true);
+  label(altX+65,y+107,selected?'NO · ≥':'YES · <','#a6b7c9',11,700);
+  label(altX+65,y+125,siblingText,'#d4e0eb',12,700);
+  line(250,y+62,altX+65,y+88,false);
+  label((250+altX+65)/2,y+76,selected?'NO':'YES','#a6b7c9',10,700);
+  const nextNodeY=i===depth-1?y+118:nextY;
+  line(250,y+62,250,nextNodeY,true);
+  label(265,y+87,selected?'YES':'NO','#39cfa2',11,750);
+  node=selected?node.left:node.right;
+ }
+ const endY=15+depth*118;
+ box(180,endY,140,60,true,true);
+ label(250,endY+22,'GREEN TIME','#a4e8d6',11,700);
+ label(250,endY+47,prediction.duration+' s','#ffffff',24,800);
+ host.replaceChildren(svg);
+}
+function updateTimingPanel(){
+ const next=(sim.phase+1)%4,proposed=greenForApproach(next);
+ $('aiBadge').textContent=timingMode==='fixed'?'FIXED BASELINE':'HYBRID · EAST AI';
+ $('aiDuration').textContent=activeGreenSeconds+' s';
+ $('aiNext').textContent=names[next]+': '+proposed+' s'+(timingMode==='adaptive'&&next===1?' (AI)':' (fixed)');
+ $('aiQueue').textContent=sim.queue.reduce((a,b)=>a+b,0);
+ $('aiReason').textContent=timingMode==='fixed'?'Baseline: all four approaches receive an illustrative 40 s green.':next!==1?'Hybrid: '+names[next]+' remains fixed at 40 s. Only East is AI-controlled.':'East decision tree uses '+sim.queue[1]+' waiting vehicles and '+(sim.queue.reduce((a,b)=>a+b,0)-sim.queue[1])+' competing vehicles to recommend '+proposed+' s.';
+ // Keep the decision explanation readable; it is a live preview until East starts.
+ if(sim.seconds-lastDecisionRender<.25)return;
+ lastDecisionRender=sim.seconds;
+ const q=sim.queue[1],other=sim.queue.reduce((a,b)=>a+b,0)-q;
+ const preview=tracePrediction(q,other),adaptive=timingMode==='adaptive';
+ $('aiEastVehicles').textContent=q;
+ $('aiOtherVehicles').textContent=other;
+ $('aiRecommendation').textContent=adaptive?preview.duration+' s':'40 s';
+ $('aiDecisionStatus').textContent=!adaptive?'Fixed mode active · East receives 40 s':sim.phase===1&&!sim.clearance?'East is green · applied duration is locked at '+activeGreenSeconds+' s':'Live preview · decision will be locked when East turns green';
+ renderDecisionFlow(adaptive?preview:null);
+ $('aiLastApplied').textContent=lastEastDecision?`Last applied East decision: ${lastEastDecision.duration} s`:'Last applied East decision: none yet';
+}
+$('timingMode').onchange=e=>{timingMode=e.target.value;log('Virtual timing strategy: '+timingMode);updateTimingPanel();};
+function log(msg){const stamp=new Date().toLocaleTimeString();const line=`[${stamp}] ${msg}`;sim.events.push({time:stamp,message:msg,simSeconds:Math.round(sim.seconds)});if(sim.events.length>500)sim.events.shift();$('log').textContent=sim.events.slice(-60).map(x=>`[${x.time}] ${x.message}`).join('\n');$('log').scrollTop=$('log').scrollHeight;if(/STM32|Serial|Sent:|Connect|Disconnect|sync/i.test(msg)){const d=$('serialDiagnostics');if(d){d.textContent=(d.textContent==='Waiting for serial connection…'?'':d.textContent+'\n')+line;d.scrollTop=d.scrollHeight;}}}
+function render(){const green=sim.clearance?-1:sim.phase;$('simStatus').textContent='Simulation running';$('simClock').textContent=`${String(Math.floor(sim.seconds/60)).padStart(2,'0')}:${String(Math.floor(sim.seconds%60)).padStart(2,'0')} elapsed`;$('phaseName').textContent=sim.clearance?'Clearance':names[sim.phase];$('phaseRemaining').textContent=`${Math.max(0,(sim.clearance?CLEAR_SECONDS:activeGreenSeconds)-sim.phaseElapsed).toFixed(1)} s remaining`;$('totalQueue').textContent=sim.queue.reduce((a,b)=>a+b,0);$('avgWait').textContent=(sim.departures?sim.waitSum/sim.departures:0).toFixed(1)+' s';$('phaseList').innerHTML=names.map((n,i)=>`<div class="phase ${i===sim.phase?'current':''}"><span>Phase ${i+1}: ${n} approach</span><span>${i===green?'● GREEN':i===sim.phase?'● CLEARANCE':'● RED'}</span></div>`).join('');keys.forEach((key,i)=>{const s=$('sig-'+key);s.className='signal'+(i===green?' green':sim.clearance&&i===sim.phase?' yellow':'');$('q-'+key).textContent=Math.round(sim.queue[i]);$('cars-'+key).innerHTML=Array.from({length:Math.min(6,Math.floor(sim.queue[i]))},()=>'<div class="car"></div>').join('');});}
+function advance(){sim.phase=(sim.phase+1)%4;sim.phaseElapsed=0;sim.clearance=false;activeGreenSeconds=greenForApproach(sim.phase);if(sim.phase===1&&timingMode==='adaptive'){const q=sim.queue[1],other=sim.queue.reduce((a,b)=>a+b,0)-q;lastEastDecision={q,other,duration:activeGreenSeconds,at:Math.round(sim.seconds)};}log(`Virtual phase ${sim.phase+1}: ${names[sim.phase]} green (${activeGreenSeconds}s, ${timingMode==='adaptive'&&sim.phase===1?'AI':'fixed'})`);syncEastSignal();}
+function tick(dt){
+ sim.seconds+=dt;
+ sim.phaseElapsed+=dt;
+ // Preserve fractional seconds at every boundary; never skip a clearance.
+ for(let guard=0;guard<8;guard++){
+  const duration=sim.clearance?CLEAR_SECONDS:activeGreenSeconds;
+  if(sim.phaseElapsed<duration-1e-9)break;
+  sim.phaseElapsed=Math.max(0,sim.phaseElapsed-duration);
+  if(sim.clearance)advanceWithRemainder(sim.phaseElapsed);
+  else {sim.clearance=true;log(`Virtual phase ${sim.phase+1}: clearance`);syncEastSignal();}
+ }
+}
+function advanceWithRemainder(remainder){advance();sim.phaseElapsed=remainder;}
+
+// All geometry, lane markings, queues, and trajectories use the SAME coordinates.
+// Approach order: N, E, S, W. User-confirmed incoming/outgoing lane counts.
+const NS='http://www.w3.org/2000/svg';
+const C={x:492,y:316};
+const incoming=[
+ {x:382,y:-90}, // Al-Sharif Naser Ben Jamil: north
+ {x:1020,y:204}, // Pr. Shaker Street: east
+ {x:598,y:720}, // Al-Sharif Naser Ben Jamil: south
+ {x:-90,y:494}  // Kindi Street: west/southwest
+];
+const COLORS=['#f3c34d','#e8eef1','#4c9ccc','#d46a59','#9dc6a6','#b9d1db'];
+const vectors=incoming.map(p=>{const dx=C.x-p.x,dy=C.y-p.y,l=Math.hypot(dx,dy);return {x:dx/l,y:dy/l};});
+const right=v=>({x:-v.y,y:v.x});
+const plus=(p,v,k)=>({x:p.x+v.x*k,y:p.y+v.y*k});
+const vec=(a,b)=>({x:b.x-a.x,y:b.y-a.y});
+const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const pt=p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+function node(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.appendChild(e);return e;}
+const road=$('roadGeometry'),mark=$('roadMarkings'),vehicleLayer=$('vehicleScene');
+const lanes=[],cars=[],approachLanes=[[],[],[],[]];
+// N 5/3, E 5/3, S 3/4, W 5/3. Incoming on +right(v), outgoing on -right(v).
+const laneCounts=[{in:5,out:3},{in:5,out:3},{in:3,out:4},{in:5,out:3}];
+const laneWidth=14,stopDistance=112;
+for(let a=0;a<4;a++){
+ const v=vectors[a],r=right(v),start=plus(C,v,-650);
+ const nIn=laneCounts[a].in,nOut=laneCounts[a].out;
+ const low=-nOut*laneWidth-6, high=nIn*laneWidth+6;
+ const corners=[plus(start,r,low-6),plus(start,r,high+6),plus(C,r,high+6),plus(C,r,low-6)];
+ node('polygon',{points:corners.map(pt).join(' '),fill:'#c6c8bc'},road);
+ const asphalt=[plus(start,r,low),plus(start,r,high),plus(C,r,high),plus(C,r,low)];
+ node('polygon',{points:asphalt.map(pt).join(' '),fill:'#41494f'},road);
+ // Median separates opposing directions and ends before the stop lines.
+ const medianStart=plus(C,v,-650),medianEnd=plus(C,v,-stopDistance-6);
+ node('path',{d:`M${pt(plus(medianStart,r,-3))} L${pt(plus(medianEnd,r,-3))} L${pt(plus(medianEnd,r,3))} L${pt(plus(medianStart,r,3))} Z`,fill:'#a6ad94',stroke:'#ded8b5','stroke-width':1.8},mark);
+ for(let j=1;j<nIn;j++){
+  const offset=j*laneWidth+3;
+  const p=plus(start,r,offset),q=plus(C,r,offset);
+  node('line',{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:'#e1e6e3','stroke-width':1.5,'stroke-dasharray':'13 12',opacity:.62},mark);
+ }
+ for(let j=1;j<nOut;j++){
+  const offset=-j*laneWidth-3;
+  const p=plus(start,r,offset),q=plus(C,r,offset);
+  node('line',{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:'#e1e6e3','stroke-width':1.5,'stroke-dasharray':'13 12',opacity:.62},mark);
+ }
+ for(let j=0;j<nIn;j++){
+  const offset=10+j*laneWidth;
+  const startP=plus(start,r,offset),stopP=plus(plus(C,v,-stopDistance),r,offset);
+  // Provisional assignments: first lane left, last right, middle lanes through.
+  const route=j===0?'left':j===nIn-1?'right':'straight';
+  const lane={id:lanes.length,approach:a,index:j,start:startP,stop:stopP,v,r,offset,route};
+  lanes.push(lane);approachLanes[a].push(lane);
+ }
+}
+// Clear center of overlapping road strokes and leave the junction as a shared paved area.
+node('circle',{cx:C.x,cy:C.y,r:117,fill:'#41494f'},road);
+// Draw approaches again at the stop line, keeping lane boundaries visible.
+for(const lane of lanes){
+ const e1=plus(lane.stop,lane.r,-6.5),e2=plus(lane.stop,lane.r,6.5);
+ node('line',{x1:e1.x,y1:e1.y,x2:e2.x,y2:e2.y,stroke:'#f2f4ed','stroke-width':3},mark);
+}
+// Roads from the satellite image are not a perfect orthogonal cross.
+// These right-turn bypasses are real traffic routes, not decorative road art.
+function bezier(p0,p1,p2,p3,t){const u=1-t;return {x:u*u*u*p0.x+3*u*u*t*p1.x+3*u*t*t*p2.x+t*t*t*p3.x,y:u*u*u*p0.y+3*u*u*t*p1.y+3*u*t*t*p2.y+t*t*t*p3.y};}
+function makeRoute(lane){
+ const a=lane.approach,turn=lane.route;
+ const dest=turn==='straight'?(a+2)%4:turn==='left'?(a+1)%4:(a+3)%4;
+ const out={x:-vectors[dest].x,y:-vectors[dest].y};
+ const outR=right(out);
+ // Outbound lanes are always on the right of the outgoing travel direction.
+ const available=laneCounts[dest].out;
+ const throughIndex=Math.max(0,lane.index-1);
+ const outIndex=turn==='right'?available-1:turn==='left'?0:Math.min(available-1,throughIndex);
+ const outOffset=12+outIndex*14;
+ const p0=lane.stop;
+ const p3=plus(plus(C,out,140),outR,outOffset);
+ const p1=plus(p0,lane.v,turn==='right'?44:88);
+ const p2=plus(p3,out,turn==='right'?-44:-88);
+ const curve=[];
+ for(let k=0;k<=44;k++)curve.push(bezier(p0,p1,p2,p3,k/44));
+ // Extend into the outgoing carriageway.
+ for(let k=1;k<=90;k++)curve.push(plus(p3,out,k*5));
+ const arc=[0];for(let i=1;i<curve.length;i++)arc.push(arc[i-1]+distance(curve[i],curve[i-1]));
+ return {curve,arc,length:arc.at(-1),dest,out};
+}
+lanes.forEach(l=>l.path=makeRoute(l));
+// Right-turn bypasses follow the same path as vehicles in dedicated turn lanes.
+for(const lane of lanes.filter(l=>l.route==='right')){
+ const points=lane.path.curve.slice(0,46);
+ const d='M'+points.map(pt).join(' L');
+ node('path',{d,fill:'none',stroke:'#b9bcb2','stroke-width':24,'stroke-linecap':'round'},road);
+ node('path',{d,fill:'none',stroke:'#41494f','stroke-width':17,'stroke-linecap':'round'},road);
+ node('path',{d,fill:'none',stroke:'#e2e4dc','stroke-width':1.3,'stroke-dasharray':'7 10',opacity:.6},mark);
+}
+function sampleRoute(path,d){
+ if(d<=0)return path.curve[0];if(d>=path.length)return path.curve.at(-1);
+ let lo=0,hi=path.arc.length-1;
+ while(hi-lo>1){const mid=(lo+hi)>>1;if(path.arc[mid]<d)lo=mid;else hi=mid;}
+ const f=(d-path.arc[lo])/(path.arc[hi]-path.arc[lo]||1);
+ const a=path.curve[lo],b=path.curve[hi];return {x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f};
+}
+function position(car){
+ const l=car.lane;
+ if(car.progress<=0)return plus(l.stop,l.v,car.progress);
+ return sampleRoute(l.path,car.progress);
+}
+function spawn(lane,initial=false,slot=0){
+ const progress=initial?-21-slot*37:-500;
+ if(!initial&&cars.some(c=>c.lane===lane&&c.progress<progress+40&&c.progress>progress-30))return;
+ const el=node('g',{class:'vehicle'},vehicleLayer);
+ node('rect',{x:-7,y:-13,width:14,height:26,rx:3.5,fill:COLORS[Math.floor(Math.random()*COLORS.length)],stroke:'#28323b','stroke-width':1.2},el);
+ node('rect',{x:-5,y:-6,width:10,height:8,rx:1.5,fill:'#344e60',opacity:.8},el);
+ cars.push({lane,progress,speed:initial?0:46,wait:0,el,cleared:false});
+}
+for(const l of lanes)for(let j=0;j<2;j++)spawn(l,true,j);
+let previous=performance.now(),accum=0,spawnClock=0;
+function animateVehicles(dt){
+ spawnClock+=dt;
+ if(spawnClock>=.55){const step=spawnClock;spawnClock=0;
+  const rates=scenarios[sim.scenario];
+  for(let a=0;a<4;a++)if(Math.random()<Math.min(.96,rates[a]*step*3.5)){
+   const group=[...approachLanes[a]].sort((x,y)=>cars.filter(c=>c.lane===x&&c.progress<0).length-cars.filter(c=>c.lane===y&&c.progress<0).length);
+   spawn(group[0]);
+  }
+ }
+ for(const lane of lanes){
+  const group=cars.filter(c=>c.lane===lane).sort((a,b)=>b.progress-a.progress);
+  let lead=null;
+  for(const car of group){
+   const allowed=!sim.clearance&&sim.phase===lane.approach;
+   const was=car.progress;
+   const desired=Math.min(66,car.speed+90*dt);
+   let next=was+desired*dt;
+   // Cars already beyond the stop line may finish their turn on phase change.
+   if(!allowed&&was<0)next=Math.min(next,-19);
+   if(lead)next=Math.min(next,lead.progress-36);
+   next=Math.max(was,next);
+   car.progress=next;
+   car.speed=dt>0?(next-was)/dt:0;
+   if(car.progress<0&&car.speed<1)car.wait+=dt;
+   if(was<0&&next>=0){sim.departures++;sim.waitSum+=car.wait;}
+   lead=car;
+  }
+ }
+ for(let i=cars.length-1;i>=0;i--){
+  const car=cars[i],p=position(car),p2=car.progress<=-2?plus(p,car.lane.v,2):sampleRoute(car.lane.path,car.progress+2);
+  const angle=Math.atan2(p2.y-p.y,p2.x-p.x)*180/Math.PI+90;
+  car.el.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+  if(car.progress>car.lane.path.length+30){car.el.remove();cars.splice(i,1);}
+ }
+ sim.queue=[0,0,0,0];for(const car of cars)if(car.progress<0)sim.queue[car.lane.approach]++;
+}
+function updateHardwareDemonstration(){
+ const connected=!!writer && !!hw;
+ const virtualState=sim.phase===1?(sim.clearance?'YELLOW':'GREEN'):'RED';
+ const state=connected?hw:virtualState;
+ for(const color of ['red','yellow','green'])$('demo-'+color).classList.toggle('on',state===color.toUpperCase());
+ $('demoStatus').textContent=connected?'Physical STM32 feedback':'Virtual preview · no STM32 connected';
+ $('demoExplanation').textContent=connected
+  ?'These LEDs show the actual state reported by the connected STM32. Enable East synchronization to make the physical LEDs follow the virtual East signal.'
+  :'These LEDs simulate the East traffic light directly from the virtual controller. Use a NUCLEO-F401RE, three resistors, three LEDs, and a USB connection to demonstrate ongoing data exchange between the dashboard and physical controller.';
+}
+function frame(now){const dt=Math.min(.08,(now-previous)/1000);previous=now;accum+=dt;while(accum>=.1){tick(.1);accum-=.1;}animateVehicles(dt);render();updateTimingPanel();updateHardwareDemonstration();requestAnimationFrame(frame);}requestAnimationFrame(frame);
+$('scenario').onchange=e=>{sim.scenario=e.target.value;log('Scenario: '+e.target.selectedOptions[0].text);};$('theme').onclick=()=>document.body.classList.toggle('light');
+function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('csv').onclick=()=>{ $('dataFeedback').textContent='CSV event log downloaded.';download('wadi-saqra-events.csv','time,simulation_seconds,message\n'+sim.events.map(e=>[e.time,e.simSeconds,'"'+e.message.replaceAll('"','""')+'"'].join(',')).join('\n'),'text/csv');};$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const s=data.scenario||data.state?.scenario;if(!Object.hasOwn(scenarios,s))throw Error('Expected scenario: normal, rush or quiet');sim.scenario=s;$('scenario').value=s;log('Imported scenario: '+s);}catch(err){alert('Invalid scenario JSON: '+err.message);}e.target.value='';};
+function updateHW(state){hw=state;['red','yellow','green'].forEach(c=>$('hw-'+c).classList.toggle('active',state===c.toUpperCase()));$('hwState').textContent='Physical LED state: '+state;syncControls();}
+function setConnected(yes){if(!yes){eastSync=false;eastSyncState='idle';$('syncEast').checked=false;}$('hwStatus').textContent=yes?'Connected':'Disconnected';$('hwDot').classList.toggle('on',yes);$('connect').disabled=yes;$('disconnect').disabled=!yes;document.querySelectorAll('.hwcmd').forEach(b=>b.disabled=!yes);if(!yes){hw='';['red','yellow','green'].forEach(c=>$('hw-'+c).classList.remove('active'));$('hwState').textContent='No hardware state received';}syncControls();}
+$('connect').onclick=async()=>{if(!('serial' in navigator)){alert('Web Serial unavailable. Use Chrome or Edge over HTTPS or localhost.');return;}try{port=await navigator.serial.requestPort();await port.open({baudRate:115200});writer=port.writable.getWriter();setConnected(true);log('STM32 connected (115200 baud)');readTask=(async()=>{const decoder=new TextDecoder();let pending='';try{while(port?.readable){reader=port.readable.getReader();try{while(true){const {value,done}=await reader.read();if(done)break;pending+=decoder.decode(value,{stream:true});let pos;while((pos=pending.indexOf('\n'))!==-1){const line=pending.slice(0,pos).trim();pending=pending.slice(pos+1);if(!line)continue;log('STM32: '+line);if(line.startsWith('STATE,'))updateHW(line.slice(6));}}}finally{reader.releaseLock();reader=null;}break;}}catch(err){log('Serial read error: '+err.message);}finally{setConnected(false);}})();}catch(err){log('Connect failed: '+err.message);setConnected(false);}};
+async function send(command){if(!writer){log('Not connected');return;}try{await writer.write(new TextEncoder().encode(command+'\n'));log('Sent: '+command);}catch(err){log('Send failed: '+err.message);}}
+function syncControls(){const ready=!!writer&&hw==='RED';$('syncEast').disabled=!eastSync&&!ready;document.querySelectorAll('.hwcmd').forEach(b=>b.disabled=!writer||eastSync);$('syncStatus').textContent=eastSync?'Armed: '+eastSyncState+'. East is the only hardware-mirrored approach; disconnect or uncheck to stop.':writer?'Enable only when STM32 reports RED and is in MANUAL mode. Sync begins at East’s next green.':'Connect STM32, select Manual, and confirm its reported LED is RED before enabling.';}
+$('syncEast').onchange=async e=>{if(e.target.checked){if(!writer||hw!=='RED'){e.target.checked=false;syncControls();return;}eastSync=true;eastSyncState='waiting for next East green';lastEastPhase='';await send('MODE,MANUAL');log('East hardware sync armed; waiting for next East green');}else{eastSync=false;eastSyncState='idle';log('East hardware sync disabled; controller left in its current state');}syncControls();};
+async function syncEastSignal(){if(!eastSync||!writer)return;const state=sim.phase===1?(sim.clearance?'YELLOW':'GREEN'):'RED';if(state===lastEastPhase)return;
+// Only issue supported Red -> Green -> Yellow -> Red transitions; never command a conflicting green.
+if(state==='GREEN'&&lastEastPhase===''){lastEastPhase='GREEN';eastSyncState='East GREEN';await send('LIGHT,GREEN');}
+else if(state==='YELLOW'&&lastEastPhase==='GREEN'){lastEastPhase='YELLOW';eastSyncState='East YELLOW';await send('LIGHT,YELLOW');}
+else if(state==='RED'&&lastEastPhase==='YELLOW'){lastEastPhase='RED';eastSyncState='East RED';await send('LIGHT,RED');}
+else if(state==='GREEN'&&lastEastPhase==='RED'){lastEastPhase='GREEN';eastSyncState='East GREEN';await send('LIGHT,GREEN');}
+syncControls();}
+document.querySelectorAll('.hwcmd').forEach(b=>b.onclick=()=>send(b.dataset.command));
+$('disconnect').onclick=async()=>{try{if(reader)await reader.cancel();if(readTask)await readTask;if(writer){writer.releaseLock();writer=null;}if(port){await port.close();port=null;}log('STM32 disconnected');}catch(err){log('Disconnect error: '+err.message);}finally{setConnected(false);}};
+log('Dashboard ready. Synthetic simulation started.');
+</script></body></html>
